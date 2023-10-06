@@ -158,13 +158,13 @@ class Maxdis(MasterMind):
 class Setting(MasterMind):
     def toko(self):
         kode = input('kode toko? ')
-        if len(kode) == 0: exit()
+        if len(kode) == 0: return
         self.check_store(kode)
         confirm = input('betul tidak? [y/n] ')
         if confirm.lower() == 'y':
-            self.write_config('store', kode['storeId'])
+            self.write_config('store', kode)
         else:
-            exit()
+            return
 
     def akun(self, action):
         cur = self.connect.cursor()
