@@ -10,7 +10,7 @@ from modules.mastermind import warna
 banner = f'''{warna[1]}########### 5.22-B ##########
 #                           #
 # made with hand by ipin    #
-#---------------------------#{warna[0]}
+#___________________________#{warna[0]}
 # masih beta & kacau        #
 # seperti negeri ini        #
 #                           #
