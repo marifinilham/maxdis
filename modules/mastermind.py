@@ -4,9 +4,11 @@ from sqlite3 import Error
 from json import loads, dumps
 from base64 import b64encode
 from datetime import datetime as dt
+from os import get_terminal_size as gts
 
 class MasterMind:
     def __init__(self):
+        global warna
         # sqlite
         try:
             self.connect = sqlite3.connect('config/akun.db')
@@ -63,24 +65,32 @@ class MasterMind:
         tmp.write(dumps(config))
         tmp.close()
 
+    def debug(self, clr, txt):
+        d = warna[0]
+        if clr == 'r':
+            a, b, c = warna[1], warna[3], '!'
+        elif clr == 'g':
+            a, b, c = warna[2], warna[6], '*'
+        elif clr == 'c':
+            a, b, c = warna[4], warna[5], '?'
+        
+        print(f'\r{" "*gts().columns}', end='')
+        print(f'\r{d}[{a}{c}{d}] {b}{txt}{d}', end='', flush=1)
+
     def check_store(self, kode):
-        while 1:
-            print('\rcheck toko...', end='', flush=1)
-            r = self.req('GET', f'api/sis/master/status_toko/?storeId={kode}')
-            if r.get('err'):
-                continue
+        self.debug('g', 'check toko')
+        r = self.req('GET', f'api/sis/master/status_toko/?storeId={kode}')
+        if r.get('err'):
+            return self.debug('r', f'error: {r["err"]}\n')
 
-            break
-
-        print('nama toko:', r['storeName'])
+        self.debug('g', f'nama toko: {r["storeName"]}\n')
 
     def login(self, nik, pwd):
         config = self.load_config()
         versi, store_id = config['versi_maxdis'], config['store']
-        print('login bentar...', end='', flush=1)
+        self.debug('g', 'login bentar...')
         r = self.req('POST', f'api/mob/login/?appName=MaxDisplay&versi={versi}', {
             'timeTx': dt.now().strftime('%H:%M:%S'),
-            # 'timeTx': '12:14:15',
             'userId': nik,
             'storeId': store_id,
             'password': b64encode(pwd.encode()).decode(),
@@ -88,7 +98,7 @@ class MasterMind:
         })
 
         if r.get('err'):
-            print('\nidk')
+            self.debug('r', f'error: {r["err"]}\n')
             return ()
 
         return r['user']
@@ -113,11 +123,11 @@ class Maxdis(MasterMind):
 
     def maxdis(self, x, y):
         while 1:
-            print(f'rak {x}')
+            self.debug('g', f'rak {x}\n')
             all_rak = self.list_rack(y)
             if type(all_rak) != list:
                 if all_rak['err'] == 204:
-                    print('no data')
+                    self.debug('r', 'no data\n')
                     break
                 continue
 
@@ -140,39 +150,41 @@ class Maxdis(MasterMind):
             'osa': 'F',
             'khusus': 'T'
         }
-        self.check_store(self.config['store'])
 
-        while 1:
-            cur.execute('SELECT nik, password FROM akun ORDER BY RANDOM() LIMIT 1')
-            usr, pwd = cur.fetchone()
-            akun = self.login(usr, pwd)
-            print(type(akun))
-            if type(akun) != dict: continue
-            break
+        cur.execute('SELECT nik, password FROM akun ORDER BY RANDOM() LIMIT 1')
+        usr, pwd = cur.fetchone()
+        akun = self.login(usr, pwd)
+        if type(akun) != dict:
+            return self.debug('r', 'idk error\n')
 
-        print(f'Nik/Nama: {akun["userId"]}/{akun["name"]}')
+        self.debug('g', f'Nik/Nama: {akun["userId"]}/{akun["name"]}\n')
         
         for x, y in flag.items():
             self.maxdis(x, y)
 
 class Setting(MasterMind):
     def toko(self):
-        kode = input('kode toko? ')
+        self.debug('c', 'kode toko: ')
+        kode = input()
         if len(kode) == 0: return
         self.check_store(kode)
-        confirm = input('betul tidak? [y/n] ')
+        self.debug('c', 'betul tidak? [y/n] ')
+        confirm = input()
         if confirm.lower() == 'y':
             self.write_config('store', kode)
+            self.debug('g', 'oke done')
         else:
             return
 
     def akun(self, action):
         cur = self.connect.cursor()
         if action == 'tambah':
-            nik = input('nik? ')
-            pwd = input('password? ')
+            self.debug('c', 'nik: ')
+            nik = input()
+            self.debug('c', 'password: ')
+            pwd = input()
             if len(nik) == 0 or len(pwd) == 0:
-                return print('hah kosong?')
+                return self.debug('r', 'hah kosong?\n')
 
             akun = self.login(nik, pwd)
             if len(akun) == 0: return
@@ -180,7 +192,7 @@ class Setting(MasterMind):
             query = 'INSERT INTO akun VALUES(?,?,?)'
             cur.execute(query, (nik, pwd, akun['name']))
             self.connect.commit()
-            print('\ndone')
+            self.debug('g', 'done\n')
 
         elif action == 'apus':
             cur.execute('SELECT nik, nama FROM akun')
@@ -192,7 +204,8 @@ class Setting(MasterMind):
             
             print('*ketik 0 untuk keluar')
 
-            n = int(input('pilih: '))
+            self.debug('c', 'pilih: ')
+            n = int(input())
             if n == 0:
                 return
             
