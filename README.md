@@ -12,3 +12,5 @@ buka maxdis
 cd maxdis
 python main.py
 ```
+
+*note: ganti toko & tambahkan akun sebelum mulai maxdis
