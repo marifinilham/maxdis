@@ -162,7 +162,7 @@ class Setting(MasterMind):
         self.check_store(kode)
         confirm = input('betul tidak? [y/n] ')
         if confirm.lower() == 'y':
-            self.write_config('store', r['storeId'])
+            self.write_config('store', kode['storeId'])
         else:
             exit()
 
