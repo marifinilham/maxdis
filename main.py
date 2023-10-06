@@ -18,11 +18,6 @@ banner = f'''{warna[1]}########### 5.22-B ##########
 '''
 
 def cli():
-    system('clear')
-    for _ in banner:
-        print(_, end='', flush=1)
-        sl(0.003)
-
     print(
         f'{warna[1]}1. {warna[0]}ganti toko\n\
         \r{warna[1]}2. {warna[0]}tambah akun\n\
@@ -42,5 +37,10 @@ def cli():
         maxdis.start()
     
     cli()
+
+system('clear')
+for _ in banner:
+    print(_, end='', flush=1)
+    sl(0.003)
 
 cli()
