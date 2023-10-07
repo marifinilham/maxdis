@@ -114,7 +114,7 @@ class Maxdis(MasterMind):
         return r
 
     def rak_detail(self, arak, flag):
-        r = req('GET', f'api/mob/tablet/maxdisplay/show_per_rack/?storeid={self.config["store"]}&osa={flag}&rack={arak}')
+        r = self.req('GET', f'api/mob/tablet/maxdisplay/show_per_rack/?storeid={self.config["store"]}&osa={flag}&rack={arak}')
         return r
 
     def konfirm(self, plu, arak, plano, qty):
