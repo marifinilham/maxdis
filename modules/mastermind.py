@@ -118,7 +118,7 @@ class Maxdis(MasterMind):
         return r
 
     def konfirm(self, plu, arak, plano, qty):
-        r = req('PUT', f'api/mob/tablet/maxdisplay/confirm/?storeid={self.config["store"]}&plu={plu}&rack={arak}&plano={plano}&qty={qty}')
+        r = self.req('PUT', f'api/mob/tablet/maxdisplay/confirm/?storeid={self.config["store"]}&plu={plu}&rack={arak}&plano={plano}&qty={qty}')
         return 'failed' if r.get('err') else 'saved'
 
     def maxdis(self, x, y):
@@ -172,7 +172,7 @@ class Setting(MasterMind):
         confirm = input()
         if confirm.lower() == 'y':
             self.write_config('store', kode)
-            self.debug('g', 'oke done')
+            self.debug('g', 'oke done\n')
         else:
             return
 
